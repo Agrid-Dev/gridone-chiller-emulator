@@ -1,0 +1,43 @@
+[project]
+name = "gridone-chiller-emulator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.5",
+    "ty>=0.0.21",
+]
+test = [
+    "pytest",
+    "httpx",
+]
+
+[tool.uv]
+package = true
+
+[tool.ruff]
+indent-width = 4
+line-length = 88
+fix = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+   "D",
+   "COM812",
+   "S101",
+   "ARG005",
+   "FBT001",
+   "FBT002",
+   "FBT003",
+]
+
+[tool.ty.environment]
+python-version = "3.13"

@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+.mypy_cache/
+.pytest_cache/
+
+# Ide config
+.zed
+
+# development
+.db
+.BENCH.md
+
+# OS
+.DS_Store
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+dist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Environments
+**/.env
+.venv
+
+# Ruff stuff:
+.ruff_cache/
