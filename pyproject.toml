@@ -44,3 +44,11 @@ ignore = [
 
 [tool.ty.environment]
 python-version = "3.13"
+
+[tool.commitizen]
+version = "0.1.0"
+version_scheme = "semver"
+tag_format = "v$version"
+version_files = [
+    "pyproject.toml:version",
+]
