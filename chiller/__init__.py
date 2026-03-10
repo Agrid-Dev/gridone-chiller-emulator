@@ -1,3 +1,3 @@
-from .model import Chiller
+from .chiller import Chiller
 
 __all__ = ["Chiller"]

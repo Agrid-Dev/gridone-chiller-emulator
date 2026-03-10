@@ -14,6 +14,22 @@ This project uses `ruff` and `ty` for lint and type checks.
 uv sync --all-groups
 ```
 
+## Pre-commit hooks
+
+This repo uses the [`pre-commit`](https://pre-commit.com/) tool with a minimal local config in `.pre-commit-config.yaml`. The hooks run `ruff`, `ty`, and `pytest` via `uv`.
+
+Install pre-commit:
+
+```sh
+uvx pre-commit install
+```
+
+To run the hooks on demand:
+
+```sh
+uvx pre-commit run --all-files
+```
+
 ## Chiller attributes
 
 - **enabled** (`bool`, R/W): whether the chiller is on or off.
