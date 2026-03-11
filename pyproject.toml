@@ -40,7 +40,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["PLR2004"]
+"tests/**" = ["PLR2004", "SLF001"]
 
 [tool.ty.environment]
 python-version = "3.13"

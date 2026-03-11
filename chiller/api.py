@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 from fastapi import APIRouter, HTTPException
 
 from .chiller import Chiller
@@ -8,6 +10,12 @@ from .schemas import ChillerSnapshot, ChillerUpdate
 router = APIRouter(prefix="/chiller", tags=["chiller"])
 
 _chiller = Chiller()
+
+
+def start_simulation(interval: float = 1.0) -> None:
+    """Start the chiller simulation loop in a background daemon thread."""
+    thread = threading.Thread(target=_chiller.run, args=(interval,), daemon=True)
+    thread.start()
 
 
 @router.get("/snapshot", response_model=ChillerSnapshot)
