@@ -1,3 +1,9 @@
+## v0.3.0 (2026-03-11)
+
+### Feat
+
+- create controllers for chiller regulation simulation and its tests
+
 ## v0.2.0 (2026-03-10)
 
 ### Feat
