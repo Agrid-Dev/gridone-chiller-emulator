@@ -11,6 +11,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "matplotlib>=3.10.8",
+    "pandas>=3.0.1",
     "ruff>=0.15.5",
     "ty>=0.0.21",
 ]
@@ -41,6 +43,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["PLR2004", "SLF001"]
+"scripts/**" = ["SLF001", "INP001", "T201"]
 
 [tool.ty.environment]
 python-version = "3.13"

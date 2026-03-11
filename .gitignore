@@ -59,3 +59,8 @@ __pypackages__/
 
 # Ruff stuff:
 .ruff_cache/
+
+# Local scripts and generated data
+scripts/
+*.csv
+*.png
