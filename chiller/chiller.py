@@ -4,8 +4,8 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from .service import ChillerService
-from .simulation import HeatLossController, RegulationController
+from chiller.domain import ChillerService, ChillerSnapshot, InvalidInputError
+from chiller.simulation import HeatLossController, RegulationController
 
 VALID_MODES = (1, 2)
 OUTDOOR_TEMPERATURE: float = 15.0
@@ -14,7 +14,7 @@ OUTDOOR_TEMPERATURE: float = 15.0
 def default_setpoint_for_mode(mode: int) -> float:
     if mode not in VALID_MODES:
         msg = f"Invalid mode {mode!r}, expected one of {VALID_MODES}"
-        raise ValueError(msg)
+        raise InvalidInputError(msg)
     return 40.0 if mode == 1 else 10.0
 
 
@@ -76,7 +76,7 @@ class Chiller(ChillerService):
     def set_mode(self, mode: int, *, setpoint_temperature: float | None = None) -> None:
         if mode not in VALID_MODES:
             msg = f"Invalid mode {mode!r}, expected one of {VALID_MODES}"
-            raise ValueError(msg)
+            raise InvalidInputError(msg)
         with self._lock:
             self.mode = mode
             self.setpoint_temperature = (
@@ -92,14 +92,14 @@ class Chiller(ChillerService):
 
     # Snapshot
 
-    def snapshot(self) -> dict[str, bool | float | int]:
+    def snapshot(self) -> ChillerSnapshot:
         with self._lock:
-            return {
-                "enabled": self.enabled,
-                "unit_state": self._unit_state,
-                "inlet_temperature": self._temperature,
-                "outlet_temperature": self._temperature,
-                "mode": self.mode,
-                "outdoor_temperature": OUTDOOR_TEMPERATURE,
-                "setpoint_temperature": self.setpoint_temperature,
-            }
+            return ChillerSnapshot(
+                enabled=self.enabled,
+                unit_state=self._unit_state,
+                inlet_temperature=self._temperature,
+                outlet_temperature=self._temperature,
+                mode=self.mode,
+                outdoor_temperature=OUTDOOR_TEMPERATURE,
+                setpoint_temperature=self.setpoint_temperature,
+            )

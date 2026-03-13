@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from chiller.domain.chiller import Chiller
+from chiller.chiller import Chiller
 
 HEAT = 1
 COOL = 2
@@ -20,38 +20,38 @@ class TestChillerSimulation:
         chiller.set_enabled(False)
         for _ in range(10):
             chiller._update(DT)
-        assert chiller.snapshot()["unit_state"] is False
+        assert chiller.snapshot().unit_state is False
 
     def test_enabled_chiller_activates_below_threshold(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)  # 37.9 < 38.0 (= 40 - 2)
         chiller.set_enabled(True)
         chiller._update(DT)
-        assert chiller.snapshot()["unit_state"] is True
+        assert chiller.snapshot().unit_state is True
 
     def test_temperature_rises_when_unit_active_in_heat_mode(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)
         chiller.set_enabled(True)
-        before = chiller.snapshot()["outlet_temperature"]
+        before = chiller.snapshot().outlet_temperature
         chiller._update(DT)
-        assert chiller.snapshot()["outlet_temperature"] > before
+        assert chiller.snapshot().outlet_temperature > before
 
     def test_temperature_falls_when_unit_inactive_in_heat_mode(self) -> None:
         # Starts at setpoint — within band [38, 42] — unit stays off
         chiller = Chiller(mode=HEAT, setpoint_temperature=40.0)
         chiller.set_enabled(True)
-        before = chiller.snapshot()["outlet_temperature"]
+        before = chiller.snapshot().outlet_temperature
         chiller._update(DT)
-        assert chiller.snapshot()["outlet_temperature"] < before
+        assert chiller.snapshot().outlet_temperature < before
 
     def test_unit_deactivates_when_disabled(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)
         chiller.set_enabled(True)
         chiller._update(DT)
-        assert chiller.snapshot()["unit_state"] is True
+        assert chiller.snapshot().unit_state is True
 
         chiller.set_enabled(False)
         chiller._update(DT)
-        assert chiller.snapshot()["unit_state"] is False
+        assert chiller.snapshot().unit_state is False
 
     def test_inlet_equals_outlet(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)
@@ -59,4 +59,4 @@ class TestChillerSimulation:
         for _ in range(20):
             chiller._update(DT)
             s = chiller.snapshot()
-            assert s["inlet_temperature"] == s["outlet_temperature"]
+            assert s.inlet_temperature == s.outlet_temperature

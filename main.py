@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
 
-from chiller.domain.chiller import Chiller
-from chiller.http.http_controller import create_router
+from chiller.chiller import Chiller
+from chiller.http.http_controller import router
 from chiller.modbus.modbus_controller import ModbusChillerServer
 
 if TYPE_CHECKING:
@@ -31,4 +31,5 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(create_router(_chiller))
+app.state.chiller = _chiller
+app.include_router(router)

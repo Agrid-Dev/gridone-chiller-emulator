@@ -4,14 +4,15 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from chiller.http.http_controller import create_router
+from chiller.http.http_controller import router
 from tests.conftest import StubChiller
 
 
 @pytest.fixture
 def client() -> TestClient:
     app = FastAPI()
-    app.include_router(create_router(StubChiller()))
+    app.state.chiller = StubChiller()
+    app.include_router(router)
     return TestClient(app)
 
 

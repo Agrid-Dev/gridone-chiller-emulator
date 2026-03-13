@@ -12,6 +12,8 @@ from pymodbus.datastore import (
 from pymodbus.datastore.sequential import ExcCodes
 from pymodbus.server import StartTcpServer
 
+from chiller.domain import InvalidInputError
+
 from .registers import (
     REG_ENABLED,
     REG_INLET_TEMP,
@@ -24,7 +26,7 @@ from .registers import (
 )
 
 if TYPE_CHECKING:
-    from chiller.domain.service import ChillerService
+    from chiller.domain import ChillerService
 
 _NUM_HOLDING = 3
 _NUM_INPUT = 4
@@ -40,11 +42,9 @@ class _HoldingRegisters(ModbusSequentialDataBlock):
     def getValues(self, address: int, count: int = 1) -> list[int]:  # noqa: N802
         """Sync from snapshot so reads always reflect authoritative state."""
         snap = self._chiller.snapshot()
-        self.values[REG_ENABLED] = int(snap["enabled"])
-        self.values[REG_MODE] = int(snap["mode"])
-        self.values[REG_SETPOINT] = round(
-            float(snap["setpoint_temperature"]) * TEMP_SCALE
-        )
+        self.values[REG_ENABLED] = int(snap.enabled)
+        self.values[REG_MODE] = snap.mode
+        self.values[REG_SETPOINT] = round(snap.setpoint_temperature * TEMP_SCALE)
         return super().getValues(address, count)  # type: ignore[return-value]
 
     def setValues(self, address: int, values: list[int]) -> None | ExcCodes:  # noqa: N802
@@ -60,7 +60,7 @@ class _HoldingRegisters(ModbusSequentialDataBlock):
                     self._chiller.set_mode(int(raw))
                 elif reg == REG_SETPOINT:
                     self._chiller.set_setpoint_temperature(raw / TEMP_SCALE)
-            except ValueError:
+            except InvalidInputError:
                 return ExcCodes.ILLEGAL_VALUE
         return super().setValues(address, values)
 
@@ -74,16 +74,10 @@ class _InputRegisters(ModbusSequentialDataBlock):
 
     def getValues(self, address: int, count: int = 1) -> list[int]:  # noqa: N802
         snap = self._chiller.snapshot()
-        self.values[REG_UNIT_STATE] = int(snap["unit_state"])
-        self.values[REG_INLET_TEMP] = round(
-            float(snap["inlet_temperature"]) * TEMP_SCALE
-        )
-        self.values[REG_OUTLET_TEMP] = round(
-            float(snap["outlet_temperature"]) * TEMP_SCALE
-        )
-        self.values[REG_OUTDOOR_TEMP] = round(
-            float(snap["outdoor_temperature"]) * TEMP_SCALE
-        )
+        self.values[REG_UNIT_STATE] = int(snap.unit_state)
+        self.values[REG_INLET_TEMP] = round(snap.inlet_temperature * TEMP_SCALE)
+        self.values[REG_OUTLET_TEMP] = round(snap.outlet_temperature * TEMP_SCALE)
+        self.values[REG_OUTDOOR_TEMP] = round(snap.outdoor_temperature * TEMP_SCALE)
         return super().getValues(address, count)  # type: ignore[return-value]
 
 

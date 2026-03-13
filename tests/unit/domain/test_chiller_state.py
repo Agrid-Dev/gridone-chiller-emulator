@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from chiller.domain.chiller import Chiller, default_setpoint_for_mode
+from chiller.chiller import Chiller, default_setpoint_for_mode
 
 
 def test_defaults_match_mode() -> None:
