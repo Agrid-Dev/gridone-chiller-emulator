@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ChillerSnapshot(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     enabled: bool
     unit_state: bool
     inlet_temperature: float
