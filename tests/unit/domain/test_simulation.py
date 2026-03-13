@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from chiller.simulation import (
+from chiller.domain.simulation import (
     HEAT_LOSS_RATE,
     REGULATION_RATE,
     HeatLossController,

@@ -42,10 +42,10 @@ uvx pre-commit run --all-files
 
 ## HTTP API
 
-- **GET** `/chiller/snapshot`  
+- **GET** `/chiller/snapshot`
   Returns a snapshot of all attributes.
 
-- **PATCH** `/chiller`  
+- **PATCH** `/chiller`
   Accepts a JSON body with any subset of writable fields:
   - `enabled`
   - `mode`

@@ -1,0 +1,51 @@
+from __future__ import annotations
+
+import pytest
+
+from chiller.domain.chiller import OUTDOOR_TEMPERATURE
+from chiller.domain.service import ChillerService
+
+
+class StubChiller(ChillerService):
+    """ChillerService stub for controller-level tests."""
+
+    def __init__(self) -> None:
+        self.enabled = False
+        self.mode = 2
+        self.setpoint_temperature = 10.0
+        self.unit_state = False
+        self.inlet_temperature = 10.0
+        self.outlet_temperature = 10.0
+        self.outdoor_temperature = OUTDOOR_TEMPERATURE
+
+    def snapshot(self) -> dict:
+        return {
+            "enabled": self.enabled,
+            "unit_state": self.unit_state,
+            "inlet_temperature": self.inlet_temperature,
+            "outlet_temperature": self.outlet_temperature,
+            "mode": self.mode,
+            "outdoor_temperature": self.outdoor_temperature,
+            "setpoint_temperature": self.setpoint_temperature,
+        }
+
+    def set_enabled(self, enabled: bool) -> None:
+        self.enabled = enabled
+
+    def set_mode(self, mode: int, *, setpoint_temperature: float | None = None) -> None:
+        if mode not in (1, 2):
+            msg = f"Invalid mode {mode!r}"
+            raise ValueError(msg)
+        self.mode = mode
+        default = 40.0 if mode == 1 else 10.0
+        self.setpoint_temperature = (
+            setpoint_temperature if setpoint_temperature is not None else default
+        )
+
+    def set_setpoint_temperature(self, setpoint_temperature: float) -> None:
+        self.setpoint_temperature = setpoint_temperature
+
+
+@pytest.fixture
+def stub() -> StubChiller:
+    return StubChiller()

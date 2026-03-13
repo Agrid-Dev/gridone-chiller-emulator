@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from chiller.chiller import Chiller
+from chiller.domain.chiller import Chiller
 
 HEAT = 1
 COOL = 2

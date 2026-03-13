@@ -4,6 +4,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 
+from .service import ChillerService
 from .simulation import HeatLossController, RegulationController
 
 VALID_MODES = (1, 2)
@@ -18,7 +19,7 @@ def default_setpoint_for_mode(mode: int) -> float:
 
 
 @dataclass
-class Chiller:
+class Chiller(ChillerService):
     enabled: bool = False
     mode: int = field(default=2)
     setpoint_temperature: float = field(

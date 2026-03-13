@@ -1,3 +1,3 @@
-from .chiller import Chiller
+from .domain.chiller import Chiller
 
 __all__ = ["Chiller"]
