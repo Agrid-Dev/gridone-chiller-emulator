@@ -1,3 +1,13 @@
+## v0.4.0 (2026-03-13)
+
+### Feat
+
+- include modbus support and restructure to separate api and chiller concerns
+
+### Refactor
+
+- extract chiller service from domain and improve error handling
+
 ## v0.3.0 (2026-03-11)
 
 ### Feat
