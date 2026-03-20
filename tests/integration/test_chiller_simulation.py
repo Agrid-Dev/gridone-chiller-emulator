@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from chiller.chiller import Chiller
+from chiller.domain import Mode
 
-HEAT = "heat"
-COOL = "cool"
+HEAT = Mode.HEAT
+COOL = Mode.COOL
 DT = 1.0  # 1-second tick
 
 
-def _chiller_at(temperature: float, *, setpoint: float, mode: str = HEAT) -> Chiller:
+def _chiller_at(temperature: float, *, setpoint: float, mode: Mode = HEAT) -> Chiller:
     """Return a Chiller whose internal temperature starts at `temperature`."""
     chiller = Chiller(mode=mode, setpoint_temperature=temperature)
     chiller.setpoint_temperature = setpoint

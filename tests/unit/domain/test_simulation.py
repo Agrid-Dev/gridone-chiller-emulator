@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from chiller.domain import Mode
 from chiller.simulation import (
     HEAT_LOSS_RATE,
     REGULATION_RATE,
@@ -9,8 +10,8 @@ from chiller.simulation import (
     RegulationController,
 )
 
-HEAT = "heat"
-COOL = "cool"
+HEAT = Mode.HEAT
+COOL = Mode.COOL
 DT = 1.0  # 1-second tick
 
 
