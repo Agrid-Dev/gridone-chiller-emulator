@@ -4,26 +4,31 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from chiller.domain import ChillerService, ChillerSnapshot, InvalidInputError
+from chiller.domain import ChillerService, ChillerSnapshot, InvalidInputError, Mode
 from chiller.simulation import HeatLossController, RegulationController
 
-VALID_MODES = ("heat", "cool")
 OUTDOOR_TEMPERATURE: float = 15.0
 
+DEFAULT_SETPOINTS: dict[Mode, float] = {
+    Mode.HEAT: 40.0,
+    Mode.COOL: 10.0,
+}
 
-def default_setpoint_temperature_for_mode(mode: str) -> float:
-    if mode not in VALID_MODES:
-        msg = f"Invalid mode {mode!r}, expected one of {VALID_MODES}"
-        raise InvalidInputError(msg)
-    return 40.0 if mode == "heat" else 10.0
+
+def default_setpoint_for_mode(mode: Mode) -> float:
+    try:
+        return DEFAULT_SETPOINTS[Mode(mode)]
+    except ValueError:
+        msg = f"Invalid mode {mode!r}, expected one of {list(Mode)}"
+        raise InvalidInputError(msg) from None
 
 
 @dataclass
 class Chiller(ChillerService):
     enabled: bool = False
-    mode: str = field(default="cool")
+    mode: Mode = field(default=Mode.COOL)
     setpoint_temperature: float = field(
-        default_factory=lambda: default_setpoint_temperature_for_mode("cool")
+        default_factory=lambda: DEFAULT_SETPOINTS[Mode.COOL]
     )
 
     # Simulation state
@@ -73,16 +78,23 @@ class Chiller(ChillerService):
         with self._lock:
             self.enabled = enabled
 
-    def set_mode(self, mode: str, *, setpoint_temperature: float | None = None) -> None:
-        if mode not in VALID_MODES:
-            msg = f"Invalid mode {mode!r}, expected one of {VALID_MODES}"
-            raise InvalidInputError(msg)
+    def set_mode(
+        self,
+        mode: Mode | str,
+        *,
+        setpoint_temperature: float | None = None,
+    ) -> None:
+        try:
+            mode = Mode(mode)
+        except ValueError:
+            msg = f"Invalid mode {mode!r}, expected one of {list(Mode)}"
+            raise InvalidInputError(msg) from None
         with self._lock:
             self.mode = mode
             self.setpoint_temperature = (
                 setpoint_temperature
                 if setpoint_temperature is not None
-                else default_setpoint_temperature_for_mode(mode)
+                else default_setpoint_for_mode(mode)
             )
             self._regulation.reset()
 

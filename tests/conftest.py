@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from chiller.chiller import OUTDOOR_TEMPERATURE
-from chiller.domain import ChillerService, ChillerSnapshot, InvalidInputError
+from chiller.domain import ChillerService, ChillerSnapshot, InvalidInputError, Mode
 
 
 class StubChiller(ChillerService):
@@ -11,7 +11,7 @@ class StubChiller(ChillerService):
 
     def __init__(self) -> None:
         self.enabled = False
-        self.mode = "cool"
+        self.mode = Mode.COOL
         self.setpoint_temperature = 10.0
         self.unit_run_status = "idle"
         self.inlet_temperature = 10.0
@@ -32,12 +32,16 @@ class StubChiller(ChillerService):
     def set_enabled(self, enabled: bool) -> None:
         self.enabled = enabled
 
-    def set_mode(self, mode: str, *, setpoint_temperature: float | None = None) -> None:
-        if mode not in ("heat", "cool"):
+    def set_mode(
+        self, mode: Mode | str, *, setpoint_temperature: float | None = None
+    ) -> None:
+        try:
+            mode = Mode(mode)
+        except ValueError:
             msg = f"Invalid mode {mode!r}"
-            raise InvalidInputError(msg)
+            raise InvalidInputError(msg) from None
         self.mode = mode
-        default = 40.0 if mode == "heat" else 10.0
+        default = 40.0 if mode == Mode.HEAT else 10.0
         self.setpoint_temperature = (
             setpoint_temperature if setpoint_temperature is not None else default
         )

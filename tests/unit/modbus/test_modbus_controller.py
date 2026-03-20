@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 from pymodbus.datastore.sequential import ExcCodes
 
+from chiller.domain import Mode
 from chiller.modbus.modbus_controller import (
     ModbusChillerServer,
     _HoldingRegisters,
@@ -48,14 +49,14 @@ def test_holding_get_enabled_reflects_snapshot(
 def test_holding_get_mode_reflects_snapshot(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
-    stub.mode = "heat"
+    stub.mode = Mode.HEAT
     assert holding.getValues(REG_MODE) == [1]
 
 
 def test_holding_get_mode_cool_is_2(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
-    stub.mode = "cool"
+    stub.mode = Mode.COOL
     assert holding.getValues(REG_MODE) == [2]
 
 
@@ -80,7 +81,7 @@ def test_write_mode_calls_set_mode(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
     holding.setValues(REG_MODE, [1])
-    assert stub.mode == "heat"
+    assert stub.mode == Mode.HEAT
 
 
 def test_write_setpoint_temperature_scales_correctly(
@@ -95,7 +96,7 @@ def test_write_invalid_mode_returns_illegal_value(
 ) -> None:
     result = holding.setValues(REG_MODE, [99])
     assert result == ExcCodes.ILLEGAL_VALUE
-    assert stub.mode == "cool"  # unchanged
+    assert stub.mode == Mode.COOL  # unchanged
 
 
 # --- _InputRegisters reads ---
