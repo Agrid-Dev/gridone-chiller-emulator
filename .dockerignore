@@ -11,3 +11,8 @@
 .env.*
 !.env.example
 
+tests/
+scripts/
+.github/
+.claude/
+*.md
