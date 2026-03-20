@@ -1,6 +1,6 @@
 [project]
 name = "gridone-chiller-emulator"
-version = "0.4.2"
+version = "0.4.3"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -50,7 +50,7 @@ ignore = [
 python-version = "3.13"
 
 [tool.commitizen]
-version = "0.4.2"
+version = "0.4.3"
 version_scheme = "semver"
 tag_format = "v$version"
 version_files = [

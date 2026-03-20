@@ -1,3 +1,9 @@
+## v0.4.3 (2026-03-20)
+
+### Fix
+
+- offset register indices to account for ModbusDeviceContext address+1
+
 ## v0.4.2 (2026-03-20)
 
 ### Refactor
