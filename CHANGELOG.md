@@ -1,3 +1,9 @@
+## v0.4.2 (2026-03-20)
+
+### Refactor
+
+- use an enum for mode
+
 ## v0.4.1 (2026-03-20)
 
 ### Refactor
