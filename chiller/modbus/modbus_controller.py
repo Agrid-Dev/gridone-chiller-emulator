@@ -31,8 +31,8 @@ from .registers import (
 if TYPE_CHECKING:
     from chiller.domain import ChillerService
 
-_NUM_HOLDING = 3
-_NUM_INPUT = 4
+_NUM_HOLDING = 4  # index 0 is unused padding (ModbusDeviceContext address+1 offset)
+_NUM_INPUT = 5  # index 0 is unused padding
 
 
 class _HoldingRegisters(ModbusSequentialDataBlock):

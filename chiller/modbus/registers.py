@@ -11,15 +11,17 @@ from chiller.domain import Mode
 TEMP_SCALE: int = 10
 
 # --- Holding registers (R/W) ---
-REG_ENABLED: int = 0
-REG_MODE: int = 1
-REG_SETPOINT: int = 2
+# Index 0 is unused padding: ModbusDeviceContext adds 1 to every address before
+# accessing the datastore, so client address N reads values[N+1].
+REG_ENABLED: int = 1
+REG_MODE: int = 2
+REG_SETPOINT: int = 3
 
 # --- Input registers (R/O) ---
-REG_UNIT_RUN_STATUS: int = 0
-REG_INLET_TEMP: int = 1
-REG_OUTLET_TEMP: int = 2
-REG_OUTDOOR_TEMP: int = 3
+REG_UNIT_RUN_STATUS: int = 1
+REG_INLET_TEMP: int = 2
+REG_OUTLET_TEMP: int = 3
+REG_OUTDOOR_TEMP: int = 4
 
 # --- Modbus ↔ domain mappings ---
 MODE_TO_INT: dict[Mode, int] = {Mode.HEAT: 1, Mode.COOL: 2}
