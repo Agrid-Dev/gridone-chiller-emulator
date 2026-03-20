@@ -9,8 +9,8 @@ from chiller.simulation import (
     RegulationController,
 )
 
-HEAT = 1
-COOL = 2
+HEAT = "heat"
+COOL = "cool"
 DT = 1.0  # 1-second tick
 
 

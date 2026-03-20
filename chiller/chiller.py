@@ -7,23 +7,23 @@ from dataclasses import dataclass, field
 from chiller.domain import ChillerService, ChillerSnapshot, InvalidInputError
 from chiller.simulation import HeatLossController, RegulationController
 
-VALID_MODES = (1, 2)
+VALID_MODES = ("heat", "cool")
 OUTDOOR_TEMPERATURE: float = 15.0
 
 
-def default_setpoint_for_mode(mode: int) -> float:
+def default_setpoint_temperature_for_mode(mode: str) -> float:
     if mode not in VALID_MODES:
         msg = f"Invalid mode {mode!r}, expected one of {VALID_MODES}"
         raise InvalidInputError(msg)
-    return 40.0 if mode == 1 else 10.0
+    return 40.0 if mode == "heat" else 10.0
 
 
 @dataclass
 class Chiller(ChillerService):
     enabled: bool = False
-    mode: int = field(default=2)
+    mode: str = field(default="cool")
     setpoint_temperature: float = field(
-        default_factory=lambda: default_setpoint_for_mode(2)
+        default_factory=lambda: default_setpoint_temperature_for_mode("cool")
     )
 
     # Simulation state
@@ -73,7 +73,7 @@ class Chiller(ChillerService):
         with self._lock:
             self.enabled = enabled
 
-    def set_mode(self, mode: int, *, setpoint_temperature: float | None = None) -> None:
+    def set_mode(self, mode: str, *, setpoint_temperature: float | None = None) -> None:
         if mode not in VALID_MODES:
             msg = f"Invalid mode {mode!r}, expected one of {VALID_MODES}"
             raise InvalidInputError(msg)
@@ -82,7 +82,7 @@ class Chiller(ChillerService):
             self.setpoint_temperature = (
                 setpoint_temperature
                 if setpoint_temperature is not None
-                else default_setpoint_for_mode(mode)
+                else default_setpoint_temperature_for_mode(mode)
             )
             self._regulation.reset()
 
@@ -96,7 +96,7 @@ class Chiller(ChillerService):
         with self._lock:
             return ChillerSnapshot(
                 enabled=self.enabled,
-                unit_state=self._unit_state,
+                unit_run_status="run" if self._unit_state else "idle",
                 inlet_temperature=self._temperature,
                 outlet_temperature=self._temperature,
                 mode=self.mode,

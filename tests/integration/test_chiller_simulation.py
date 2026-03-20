@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from chiller.chiller import Chiller
 
-HEAT = 1
-COOL = 2
+HEAT = "heat"
+COOL = "cool"
 DT = 1.0  # 1-second tick
 
 
-def _chiller_at(temperature: float, *, setpoint: float, mode: int = HEAT) -> Chiller:
+def _chiller_at(temperature: float, *, setpoint: float, mode: str = HEAT) -> Chiller:
     """Return a Chiller whose internal temperature starts at `temperature`."""
     chiller = Chiller(mode=mode, setpoint_temperature=temperature)
     chiller.setpoint_temperature = setpoint
@@ -15,18 +15,18 @@ def _chiller_at(temperature: float, *, setpoint: float, mode: int = HEAT) -> Chi
 
 
 class TestChillerSimulation:
-    def test_disabled_chiller_never_activates_unit_state(self) -> None:
+    def test_disabled_chiller_never_activates_unit(self) -> None:
         chiller = _chiller_at(30.0, setpoint=40.0)  # well below threshold (38°C)
         chiller.set_enabled(False)
         for _ in range(10):
             chiller._update(DT)
-        assert chiller.snapshot().unit_state is False
+        assert chiller.snapshot().unit_run_status == "idle"
 
     def test_enabled_chiller_activates_below_threshold(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)  # 37.9 < 38.0 (= 40 - 2)
         chiller.set_enabled(True)
         chiller._update(DT)
-        assert chiller.snapshot().unit_state is True
+        assert chiller.snapshot().unit_run_status == "run"
 
     def test_temperature_rises_when_unit_active_in_heat_mode(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)
@@ -47,11 +47,11 @@ class TestChillerSimulation:
         chiller = _chiller_at(37.9, setpoint=40.0)
         chiller.set_enabled(True)
         chiller._update(DT)
-        assert chiller.snapshot().unit_state is True
+        assert chiller.snapshot().unit_run_status == "run"
 
         chiller.set_enabled(False)
         chiller._update(DT)
-        assert chiller.snapshot().unit_state is False
+        assert chiller.snapshot().unit_run_status == "idle"
 
     def test_inlet_equals_outlet(self) -> None:
         chiller = _chiller_at(37.9, setpoint=40.0)

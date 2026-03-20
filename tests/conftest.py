@@ -11,9 +11,9 @@ class StubChiller(ChillerService):
 
     def __init__(self) -> None:
         self.enabled = False
-        self.mode = 2
+        self.mode = "cool"
         self.setpoint_temperature = 10.0
-        self.unit_state = False
+        self.unit_run_status = "idle"
         self.inlet_temperature = 10.0
         self.outlet_temperature = 10.0
         self.outdoor_temperature = OUTDOOR_TEMPERATURE
@@ -21,7 +21,7 @@ class StubChiller(ChillerService):
     def snapshot(self) -> ChillerSnapshot:
         return ChillerSnapshot(
             enabled=self.enabled,
-            unit_state=self.unit_state,
+            unit_run_status=self.unit_run_status,
             inlet_temperature=self.inlet_temperature,
             outlet_temperature=self.outlet_temperature,
             mode=self.mode,
@@ -32,12 +32,12 @@ class StubChiller(ChillerService):
     def set_enabled(self, enabled: bool) -> None:
         self.enabled = enabled
 
-    def set_mode(self, mode: int, *, setpoint_temperature: float | None = None) -> None:
-        if mode not in (1, 2):
+    def set_mode(self, mode: str, *, setpoint_temperature: float | None = None) -> None:
+        if mode not in ("heat", "cool"):
             msg = f"Invalid mode {mode!r}"
             raise InvalidInputError(msg)
         self.mode = mode
-        default = 40.0 if mode == 1 else 10.0
+        default = 40.0 if mode == "heat" else 10.0
         self.setpoint_temperature = (
             setpoint_temperature if setpoint_temperature is not None else default
         )
