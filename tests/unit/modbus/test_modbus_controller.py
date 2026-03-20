@@ -17,7 +17,7 @@ from chiller.modbus.registers import (
     REG_OUTDOOR_TEMP,
     REG_OUTLET_TEMP,
     REG_SETPOINT,
-    REG_UNIT_STATE,
+    REG_UNIT_RUN_STATUS,
     TEMP_SCALE,
 )
 
@@ -48,11 +48,18 @@ def test_holding_get_enabled_reflects_snapshot(
 def test_holding_get_mode_reflects_snapshot(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
-    stub.mode = 1
+    stub.mode = "heat"
     assert holding.getValues(REG_MODE) == [1]
 
 
-def test_holding_get_setpoint_is_scaled(
+def test_holding_get_mode_cool_is_2(
+    holding: _HoldingRegisters, stub: StubChiller
+) -> None:
+    stub.mode = "cool"
+    assert holding.getValues(REG_MODE) == [2]
+
+
+def test_holding_get_setpoint_temperature_is_scaled(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
     stub.setpoint_temperature = 40.0
@@ -73,10 +80,10 @@ def test_write_mode_calls_set_mode(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
     holding.setValues(REG_MODE, [1])
-    assert stub.mode == 1
+    assert stub.mode == "heat"
 
 
-def test_write_setpoint_scales_correctly(
+def test_write_setpoint_temperature_scales_correctly(
     holding: _HoldingRegisters, stub: StubChiller
 ) -> None:
     holding.setValues(REG_SETPOINT, [255])
@@ -88,17 +95,24 @@ def test_write_invalid_mode_returns_illegal_value(
 ) -> None:
     result = holding.setValues(REG_MODE, [99])
     assert result == ExcCodes.ILLEGAL_VALUE
-    assert stub.mode == 2  # unchanged
+    assert stub.mode == "cool"  # unchanged
 
 
 # --- _InputRegisters reads ---
 
 
-def test_input_unit_state_reflects_snapshot(
+def test_input_unit_run_status_reflects_snapshot(
     inputs: _InputRegisters, stub: StubChiller
 ) -> None:
-    stub.unit_state = True
-    assert inputs.getValues(REG_UNIT_STATE) == [1]
+    stub.unit_run_status = "run"
+    assert inputs.getValues(REG_UNIT_RUN_STATUS) == [1]
+
+
+def test_input_unit_run_status_idle_is_0(
+    inputs: _InputRegisters, stub: StubChiller
+) -> None:
+    stub.unit_run_status = "idle"
+    assert inputs.getValues(REG_UNIT_RUN_STATUS) == [0]
 
 
 def test_input_inlet_temp_is_scaled(inputs: _InputRegisters, stub: StubChiller) -> None:

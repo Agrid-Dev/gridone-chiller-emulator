@@ -6,9 +6,9 @@ REGULATION_RATE: float = 0.05  # °C/s — heat/cool rate when unit is active
 HEAT_LOSS_RATE: float = 0.0002  # °C/s — constant thermal loss
 
 
-def _mode_sign(mode: int) -> float:
-    """Returns +1.0 for heat mode (1), -1.0 for cool mode (2)."""
-    return 1.0 if mode == 1 else -1.0
+def _mode_sign(mode: str) -> float:
+    """Returns +1.0 for heat mode, -1.0 for cool mode."""
+    return 1.0 if mode == "heat" else -1.0
 
 
 @dataclass
@@ -17,7 +17,7 @@ class HeatLossController:
 
     rate: float = HEAT_LOSS_RATE
 
-    def delta_temperature(self, mode: int, dt: float) -> float:
+    def delta_temperature(self, mode: str, dt: float) -> float:
         return -_mode_sign(mode) * self.rate * dt
 
 
@@ -36,7 +36,7 @@ class RegulationController:
     def reset(self) -> None:
         self._active = False
 
-    def _update_state(self, setpoint: float, temperature: float, mode: int) -> None:
+    def _update_state(self, setpoint: float, temperature: float, mode: str) -> None:
         sign = _mode_sign(mode)
         if sign * temperature < sign * setpoint - self.hysteresis:
             self._active = True
@@ -44,7 +44,7 @@ class RegulationController:
             self._active = False
 
     def delta_temperature(
-        self, setpoint: float, temperature: float, mode: int, dt: float
+        self, setpoint: float, temperature: float, mode: str, dt: float
     ) -> float:
         self._update_state(setpoint, temperature, mode)
         if not self._active:

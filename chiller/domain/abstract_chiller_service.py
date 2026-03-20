@@ -11,10 +11,10 @@ class InvalidInputError(ValueError):
 @dataclass(frozen=True)
 class ChillerSnapshot:
     enabled: bool
-    unit_state: bool
+    unit_run_status: str
     inlet_temperature: float
     outlet_temperature: float
-    mode: int
+    mode: str
     outdoor_temperature: float
     setpoint_temperature: float
 
@@ -31,8 +31,8 @@ class ChillerService(ABC):
         """Enable or disable the chiller."""
 
     @abstractmethod
-    def set_mode(self, mode: int, *, setpoint_temperature: float | None = None) -> None:
-        """Set operating mode (1=heat, 2=cool)."""
+    def set_mode(self, mode: str, *, setpoint_temperature: float | None = None) -> None:
+        """Set operating mode ("heat" or "cool")."""
 
     @abstractmethod
     def set_setpoint_temperature(self, setpoint_temperature: float) -> None:
