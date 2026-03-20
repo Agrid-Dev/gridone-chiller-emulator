@@ -1,3 +1,9 @@
+## v0.4.1 (2026-03-20)
+
+### Refactor
+
+- **chiller**: make it gridone standard
+
 ## v0.4.0 (2026-03-13)
 
 ### Feat
