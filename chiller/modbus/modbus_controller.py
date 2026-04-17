@@ -48,7 +48,7 @@ class _HoldingRegisters(ModbusSequentialDataBlock):
         self.values[REG_ENABLED] = int(snap.enabled)
         self.values[REG_MODE] = MODE_TO_INT[snap.mode]
         self.values[REG_SETPOINT] = round(snap.setpoint_temperature * TEMP_SCALE)
-        return super().getValues(address, count)  # type: ignore[return-value]
+        return super().getValues(address, count)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
     def setValues(self, address: int, values: list[int]) -> None | ExcCodes:  # noqa: N802
         """Write to the chiller service; return ILLEGAL_VALUE on validation error."""
@@ -83,7 +83,7 @@ class _InputRegisters(ModbusSequentialDataBlock):
         self.values[REG_INLET_TEMP] = round(snap.inlet_temperature * TEMP_SCALE)
         self.values[REG_OUTLET_TEMP] = round(snap.outlet_temperature * TEMP_SCALE)
         self.values[REG_OUTDOOR_TEMP] = round(snap.outdoor_temperature * TEMP_SCALE)
-        return super().getValues(address, count)  # type: ignore[return-value]
+        return super().getValues(address, count)  # type: ignore[return-value]  # ty: ignore[invalid-return-type]
 
 
 class ModbusChillerServer:
