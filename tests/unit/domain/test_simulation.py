@@ -4,6 +4,7 @@ import pytest
 
 from chiller.domain import Mode
 from chiller.simulation import (
+    BUILDING_LOAD_RATE,
     HEAT_LOSS_RATE,
     REGULATION_RATE,
     HeatLossController,
@@ -16,25 +17,78 @@ DT = 1.0  # 1-second tick
 
 
 class TestHeatLossController:
-    def test_heat_mode_returns_negative_delta(self) -> None:
-        """Water cools in heat mode — loss opposes the heating direction."""
-        assert HeatLossController().delta_temperature(HEAT, DT) < 0
+    # --- Ambient drift (unit idle) ---
 
-    def test_cool_mode_returns_positive_delta(self) -> None:
-        """Water warms in cool mode — loss opposes the cooling direction."""
-        assert HeatLossController().delta_temperature(COOL, DT) > 0
+    def test_idle_water_hotter_than_outdoor_cools_down(self) -> None:
+        """Idle water above outdoor temp must lose heat — delta is negative."""
+        assert (
+            HeatLossController().delta_temperature(
+                outdoor_temp=15.0, water_temp=45.0, dt=DT
+            )
+            < 0
+        )
 
-    def test_magnitude_equals_rate_times_dt(self) -> None:
+    def test_idle_water_colder_than_outdoor_warms_up(self) -> None:
+        """Idle water below outdoor temp must gain heat — delta is positive."""
+        assert (
+            HeatLossController().delta_temperature(
+                outdoor_temp=15.0, water_temp=5.0, dt=DT
+            )
+            > 0
+        )
+
+    def test_idle_water_equal_to_outdoor_no_change(self) -> None:
+        """No heat exchange when water is already at outdoor temperature."""
+        assert (
+            HeatLossController().delta_temperature(
+                outdoor_temp=15.0, water_temp=15.0, dt=DT
+            )
+            == 0.0
+        )
+
+    def test_idle_ambient_magnitude(self) -> None:
+        """Ambient delta equals k * |outdoor - water| * dt."""
         ctrl = HeatLossController()
-        expected = pytest.approx(HEAT_LOSS_RATE * DT)
-        assert abs(ctrl.delta_temperature(HEAT, DT)) == expected
-        assert abs(ctrl.delta_temperature(COOL, DT)) == expected
+        outdoor, water = 15.0, 45.0
+        expected = pytest.approx(HEAT_LOSS_RATE * abs(outdoor - water) * DT)
+        assert (
+            abs(ctrl.delta_temperature(outdoor_temp=outdoor, water_temp=water, dt=DT))
+            == expected
+        )
 
-    def test_heat_and_cool_deltas_are_symmetric(self) -> None:
+    # --- Building load (unit circulating) ---
+
+    def test_circulating_cool_mode_adds_heat(self) -> None:
+        """While circulating in COOL mode the building adds heat — delta is greater than ambient alone."""
         ctrl = HeatLossController()
-        heat = ctrl.delta_temperature(HEAT, DT)
-        cool = ctrl.delta_temperature(COOL, DT)
-        assert heat == pytest.approx(-cool)
+        idle_delta = ctrl.delta_temperature(outdoor_temp=15.0, water_temp=10.0, dt=DT)
+        circ_delta = ctrl.delta_temperature(
+            outdoor_temp=15.0, water_temp=10.0, dt=DT, unit_circulating=True, mode=COOL
+        )
+        assert circ_delta > idle_delta
+
+    def test_circulating_heat_mode_removes_heat(self) -> None:
+        """While circulating in HEAT mode the building absorbs heat — delta is less than ambient alone."""
+        ctrl = HeatLossController()
+        idle_delta = ctrl.delta_temperature(outdoor_temp=15.0, water_temp=40.0, dt=DT)
+        circ_delta = ctrl.delta_temperature(
+            outdoor_temp=15.0, water_temp=40.0, dt=DT, unit_circulating=True, mode=HEAT
+        )
+        assert circ_delta < idle_delta
+
+    def test_circulating_building_load_magnitude(self) -> None:
+        """Building load component equals BUILDING_LOAD_RATE * dt on top of ambient."""
+        ctrl = HeatLossController()
+        outdoor, water = 15.0, 10.0
+        ambient = ctrl.delta_temperature(outdoor_temp=outdoor, water_temp=water, dt=DT)
+        circ = ctrl.delta_temperature(
+            outdoor_temp=outdoor,
+            water_temp=water,
+            dt=DT,
+            unit_circulating=True,
+            mode=COOL,
+        )
+        assert circ - ambient == pytest.approx(BUILDING_LOAD_RATE * DT)
 
 
 class TestRegulationController:

@@ -63,7 +63,13 @@ class Chiller(ChillerService):
                 self._unit_state = False
                 self._regulation.reset()
 
-            delta_loss = self._heat_loss.delta_temperature(self.mode, dt)
+            delta_loss = self._heat_loss.delta_temperature(
+                OUTDOOR_TEMPERATURE,
+                self._temperature,
+                dt,
+                unit_circulating=self.enabled,
+                mode=self.mode,
+            )
             self._temperature += delta_reg + delta_loss
 
     def run(self, interval: float = 1.0) -> None:
