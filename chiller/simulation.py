@@ -7,7 +7,8 @@ if TYPE_CHECKING:
     from chiller.domain import Mode
 
 REGULATION_RATE: float = 0.05  # °C/s — heat/cool rate when unit is active
-HEAT_LOSS_RATE: float = 0.0002  # °C/s — constant thermal loss
+HEAT_LOSS_RATE: float = 0.0002  # thermal exchange coefficient (°C/s per °C difference)
+BUILDING_LOAD_RATE: float = 0.01  # °C/s — building heat exchange while circulating
 
 
 def _mode_sign(mode: Mode) -> float:
@@ -17,12 +18,46 @@ def _mode_sign(mode: Mode) -> float:
 
 @dataclass
 class HeatLossController:
-    """Constant-rate thermal loss, always active regardless of unit state."""
+    """
+    Models two heat transfer effects on the water circuit:
 
-    rate: float = HEAT_LOSS_RATE
+    1. Ambient drift (always active):
+       When the unit is idle and water sits in pipes, it drifts toward the
+       outdoor temperature following Newton's law of cooling:
+           delta = k * (outdoor_temp - water_temp) * dt
+       This gives a bounded equilibrium — water can never drift past outdoor temp.
 
-    def delta_temperature(self, mode: Mode, dt: float) -> float:
-        return -_mode_sign(mode) * self.rate * dt
+    2. Building load (active only when the unit is circulating):
+       When water is pumped through the building, it picks up heat (COOL mode)
+       or loses heat (HEAT mode) at a roughly constant rate driven by the
+       building's thermal demand. This is added on top of ambient drift.
+    """
+
+    ambient_rate: float = HEAT_LOSS_RATE
+    building_rate: float = BUILDING_LOAD_RATE
+
+    def delta_temperature(
+        self,
+        outdoor_temp: float,
+        water_temp: float,
+        dt: float,
+        *,
+        unit_circulating: bool = False,
+        mode: Mode | None = None,
+    ) -> float:
+        # Ambient drift: always pulls water toward outdoor temperature.
+        # Positive when water is colder than outdoor, negative when hotter.
+        ambient = self.ambient_rate * (outdoor_temp - water_temp) * dt
+
+        if not unit_circulating or mode is None:
+            return ambient
+
+        # Building load: constant heat exchange driven by the building demand.
+        # In COOL mode the building adds heat to the cold water circuit (+).
+        # In HEAT mode the building absorbs heat from the hot water circuit (-).
+        building = -_mode_sign(mode) * self.building_rate * dt
+
+        return ambient + building
 
 
 @dataclass

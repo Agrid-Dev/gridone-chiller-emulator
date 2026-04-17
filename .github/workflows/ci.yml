@@ -19,7 +19,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies (locked)
-        run: uv sync --locked --all-groups
+        run: uv sync --frozen --all-groups
 
       - name: Run Ruff check
         run: uv run ruff check .
@@ -43,7 +43,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies (locked)
-        run: uv sync --locked --all-groups
+        run: uv sync --frozen --all-groups
 
       - name: Run tests
         run: uv run pytest
